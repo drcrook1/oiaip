@@ -1,0 +1,251 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "baseName": {
+        "type": "string",
+        "maxLength": 10,
+        "minLength": 3,
+        "metadata": {
+          "description": "The base name to use as prefix to create all the resources."
+        }
+      },
+      "location": {
+        "type": "string",
+        "defaultValue": "eastus",
+        "allowedValues": [
+          "eastus",
+          "eastus2",
+          "southcentralus",
+          "southeastasia",
+          "westcentralus",
+          "westeurope",
+          "westus2",
+          "centralus"
+        ],
+        "metadata": {
+          "description": "Specifies the location for all resources."
+        }
+      },
+      "clusterName": {
+        "type": "string",
+        "defaultValue":"aks101cluster",
+        "metadata": {
+            "description": "The name of the Managed Cluster resource."
+        }
+    },
+    "dnsPrefix": {
+        "type": "string",
+        "metadata": {
+            "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+        }
+    },
+    "osDiskSizeGB": {
+        "type": "int",
+        "defaultValue": 10,
+        "metadata": {
+            "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+        },
+        "minValue": 0,
+        "maxValue": 1023
+    },
+    "agentCount": {
+        "type": "int",
+        "defaultValue": 3,
+        "metadata": {
+            "description": "The number of nodes for the cluster."
+        },
+        "minValue": 1,
+        "maxValue": 50
+    },
+    "agentVMSize": {
+        "type": "string",
+        "defaultValue": "Standard_DS2_v2",
+        "metadata": {
+            "description": "The size of the Virtual Machine."
+        }
+    },
+    "linuxAdminUsername": {
+        "type": "string",
+        "metadata": {
+            "description": "User name for the Linux Virtual Machines."
+        }
+    },
+    "sshRSAPublicKey": {
+        "type": "string",
+        "metadata": {
+            "description": "Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example 'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm'"
+        }
+    },
+    "servicePrincipalClientId": {
+        "metadata": {
+            "description": "Client ID (used by cloudprovider)"
+        },
+        "type": "securestring"
+    },
+    "servicePrincipalClientSecret": {
+        "metadata": {
+            "description": "The Service Principal Client Secret."
+        },
+        "type": "securestring"
+    },
+    "osType": {
+        "type": "string",
+        "defaultValue": "Linux",
+        "allowedValues": [
+            "Linux"
+        ],
+        "metadata": {
+            "description": "The type of operating system."
+        }
+    },
+    "kubernetesVersion": {
+        "type": "string",
+        "defaultValue": "1.14.6",
+        "allowedValues": [
+            "1.10.13",
+            "1.11.10",
+            "1.12.8",
+            "1.13.10",
+            "1.14.6"
+        ],
+        "metadata": {
+            "description": "The version of Kubernetes."
+        }
+    }
+    },
+    "variables": {
+      "amlWorkspaceName": "[concat(parameters('baseName'),'-AML-WS')]",
+      "storageAccountName": "[concat(toLower(parameters('baseName')), 'amlsa')]",
+      "storageAccountType": "Standard_LRS",
+      "keyVaultName": "[concat(parameters('baseName'),'-AML-KV')]",
+      "tenantId": "[subscription().tenantId]",
+      "applicationInsightsName": "[concat(parameters('baseName'),'-AML-AI')]",
+      "containerRegistryName": "[concat(toLower(parameters('baseName')),'acr')]",
+      "aksClusterName": "[concat(toLower(parameters('baseName')), 'aks')]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2018-07-01",
+        "name": "[variables('storageAccountName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "[variables('storageAccountType')]"
+        },
+        "kind": "StorageV2",
+        "properties": {
+          "encryption": {
+            "services": {
+              "blob": {
+                "enabled": true
+              },
+              "file": {
+                "enabled": true
+              }
+            },
+            "keySource": "Microsoft.Storage"
+          },
+          "supportsHttpsTrafficOnly": true
+        }
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults",
+        "apiVersion": "2018-02-14",
+        "name": "[variables('keyVaultName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "tenantId": "[variables('tenantId')]",
+          "sku": {
+            "name": "standard",
+            "family": "A"
+          },
+          "accessPolicies": []
+        }
+      },
+      {
+        "type": "Microsoft.Insights/components",
+        "apiVersion": "2015-05-01",
+        "name": "[variables('applicationInsightsName')]",
+        "location": "[if(or(equals(parameters('location'),'eastus2'),equals(parameters('location'),'westcentralus')),'southcentralus',parameters('location'))]",
+        "kind": "web",
+        "properties": {
+          "Application_Type": "web"
+        }
+      },
+      {
+        "type": "Microsoft.ContainerRegistry/registries",
+        "apiVersion": "2017-10-01",
+        "name": "[variables('containerRegistryName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Standard"
+        },
+        "properties": {
+          "adminUserEnabled": true
+        }
+      },
+      {
+        "type": "Microsoft.MachineLearningServices/workspaces",
+        "apiVersion": "2018-11-19",
+        "name": "[variables('amlWorkspaceName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+          "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+          "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]",
+          "[resourceId('Microsoft.ContainerRegistry/registries', variables('containerRegistryName'))]"
+        ],
+        "identity": {
+          "type": "systemAssigned"
+        },
+        "properties": {
+          "friendlyName": "[variables('amlWorkspaceName')]",
+          "keyVault": "[resourceId('Microsoft.KeyVault/vaults',variables('keyVaultName'))]",
+          "applicationInsights": "[resourceId('Microsoft.Insights/components',variables('applicationInsightsName'))]",
+          "containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries',variables('containerRegistryName'))]",
+          "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts/',variables('storageAccountName'))]"
+        }
+      },
+      {
+        "apiVersion": "2018-03-31",
+        "type": "Microsoft.ContainerService/managedClusters",
+        "location": "[parameters('location')]",
+        "name": "[variables('aksClusterName')]",
+        "properties": {
+            "kubernetesVersion": "[parameters('kubernetesVersion')]",
+            "dnsPrefix": "[parameters('aksdnsPrefix')]",
+            "agentPoolProfiles": [
+                {
+                    "name": "agentpool",
+                    "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                    "count": "[parameters('agentCount')]",
+                    "vmSize": "[parameters('agentVMSize')]",
+                    "osType": "[parameters('osType')]",
+                    "storageProfile": "ManagedDisks"
+                }
+            ],
+            "linuxProfile": {
+                "adminUsername": "[parameters('linuxAdminUsername')]",
+                "ssh": {
+                    "publicKeys": [
+                        {
+                            "keyData": "[parameters('sshRSAPublicKey')]"
+                        }
+                    ]
+                }
+            },
+            "servicePrincipalProfile": {
+                "clientId": "[parameters('servicePrincipalClientId')]",
+                "Secret": "[parameters('servicePrincipalClientSecret')]"
+            }
+        }
+    }
+    ],
+    "outputs" : {
+      "storagekey" : {
+        "type" : "string",
+        "value" : "Test Outputs"
+      }
+    }
+  }
