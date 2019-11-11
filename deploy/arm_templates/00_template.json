@@ -34,19 +34,13 @@
             "description": "The name of the Managed Cluster resource."
         }
     },
-    "dnsPrefix": {
-        "type": "string",
-        "metadata": {
-            "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
-        }
-    },
     "osDiskSizeGB": {
         "type": "int",
-        "defaultValue": 10,
+        "defaultValue": 30,
         "metadata": {
             "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
         },
-        "minValue": 0,
+        "minValue": 30,
         "maxValue": 1023
     },
     "agentCount": {
@@ -101,28 +95,22 @@
     },
     "kubernetesVersion": {
         "type": "string",
-        "defaultValue": "1.14.6",
-        "allowedValues": [
-            "1.10.13",
-            "1.11.10",
-            "1.12.8",
-            "1.13.10",
-            "1.14.6"
-        ],
+        "defaultValue": "1.15.5",
         "metadata": {
             "description": "The version of Kubernetes."
         }
     }
     },
     "variables": {
-      "amlWorkspaceName": "[concat(parameters('baseName'),'-AML-WS')]",
-      "storageAccountName": "[concat(toLower(parameters('baseName')), 'amlsa')]",
+      "amlWorkspaceName": "[concat(parameters('baseName'),'-oiaip-WS')]",
+      "storageAccountName": "[concat(toLower(parameters('baseName')), 'oiaipsa')]",
       "storageAccountType": "Standard_LRS",
-      "keyVaultName": "[concat(parameters('baseName'),'-AML-KV')]",
+      "keyVaultName": "[concat(parameters('baseName'),'-oiaip-KV')]",
       "tenantId": "[subscription().tenantId]",
-      "applicationInsightsName": "[concat(parameters('baseName'),'-AML-AI')]",
+      "applicationInsightsName": "[concat(parameters('baseName'),'-oiaip-AI')]",
       "containerRegistryName": "[concat(toLower(parameters('baseName')),'acr')]",
-      "aksClusterName": "[concat(toLower(parameters('baseName')), 'aks')]"
+      "aksClusterName": "[concat(toLower(parameters('baseName')), 'aks')]",
+      "aksdnsPrefix" : "[concat(toLower(parameters('baseName')), 'aksprefix')]"
     },
     "resources": [
       {
@@ -214,7 +202,7 @@
         "name": "[variables('aksClusterName')]",
         "properties": {
             "kubernetesVersion": "[parameters('kubernetesVersion')]",
-            "dnsPrefix": "[parameters('aksdnsPrefix')]",
+            "dnsPrefix": "[variables('aksdnsPrefix')]",
             "agentPoolProfiles": [
                 {
                     "name": "agentpool",

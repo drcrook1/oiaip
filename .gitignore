@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# deploy generated secrets
+deploy/rsa.txt
+deploy/rsa.txt.pub
+
 # Distribution / packaging
 .Python
 build/
