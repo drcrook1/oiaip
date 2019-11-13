@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mongodb-oiaip-svc
+spec:
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  selector:
+    app: mongodb-oiaip
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: mongodb-oiaip
+spec:
+  serviceName: mongodb-oiaip
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mongodb-oiaip
+  template:
+    metadata:
+      labels:
+        app: mongodb-oiaip
+    spec:
+      containers:
+      - name: mongodb-oiaip-pod
+        image: mongo:3.6.6-jessie
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+          - name: mongodb-oiaip-vol
+            mountPath: /data/db
+  volumeClaimTemplates:
+    - metadata:
+        name: mongodb-oiaip-vol
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: default
+        resources:
+          requests:
+            storage: 100000M

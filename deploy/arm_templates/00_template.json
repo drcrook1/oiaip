@@ -99,6 +99,14 @@
         "metadata": {
             "description": "The version of Kubernetes."
         }
+    },
+    "iotSkuName": {
+      "type" : "string",
+      "defaultValue": "F1"
+    },
+    "iotCapacityUnits" : {
+      "type" : "int",
+      "defaultValue": 1
     }
     },
     "variables": {
@@ -110,7 +118,9 @@
       "applicationInsightsName": "[concat(parameters('baseName'),'-oiaip-AI')]",
       "containerRegistryName": "[concat(toLower(parameters('baseName')),'acr')]",
       "aksClusterName": "[concat(toLower(parameters('baseName')), 'aks')]",
-      "aksdnsPrefix" : "[concat(toLower(parameters('baseName')), 'aksprefix')]"
+      "aksdnsPrefix" : "[concat(toLower(parameters('baseName')), 'aksprefix')]",
+      "consumerGroupName" : "[concat(toLower(parameters('baseName')), '/events/cg1')]",
+      "iotHubName" : "[concat(toLower(parameters('baseName')), 'iothub')]"
     },
     "resources": [
       {

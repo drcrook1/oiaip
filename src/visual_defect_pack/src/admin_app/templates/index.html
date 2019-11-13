@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>
+    You have successfully deployed the DEFECT DETECTION admin application!!!
+</p>
+{% endblock %}
+
+{% block pagescripts %}
+<script type="text/javascript">
+    var security_test_endpoint = "{{ url_for('security.test') }}";
+</script>
+
+{% endblock %}

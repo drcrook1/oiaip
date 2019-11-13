@@ -35,16 +35,6 @@ az role assignment create --assignee $app_id_t --scope /subscriptions/$sub_id/re
 #sleep to ensure ad credential changes exist
 Start-Sleep -Seconds 30
 
-#$app_id = [string]$sp_rbac.appId
-#$app_secret = [string]$sp_rbac.password
-
-# $templateParamObject = @{
-#     "baseName" = "oiaipdev"
-#     "servicePrincipalClientId" = $app_id
-#     "servicePrincipalClientSecret" = $app_secret
-#     "sshRSAPublicKey" = $pub_key
-#     "linuxAdminUserName" = "david"
-# }
 $templateParamObject = New-Object -TypeName Hashtable
 $templateParamObject.Add("baseName", "oiaipdev")
 $templateParamObject.Add("servicePrincipalClientId", $app_id)

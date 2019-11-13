@@ -1,0 +1,39 @@
+{
+    "pack_name" : "visual_defect",
+    "industrial_category" : "manufacturing",
+    "deploy_type" : "iot",
+    "iot_config" : {
+        "device_requirements" : {
+            "required_tags" : ["camera", "ai_capable"]
+        }
+    },
+    "admin_app" : {
+        "path" : "./src/admin_app"
+    },
+    "stakeholder_app" : {
+        "path" : "./src/stakeholder_app/"
+    },
+    "closed_loop" : {
+        "transform_root" : "./src/closed_loop/transform",
+        "data_capture_root" : "./src/closed_loop/data_capture",
+        "prediction" : {
+            "root_path" : "./src/closed_loop/predict",
+            "ml_models" : [
+                {
+                    "name" : "asset_detector",
+                    "type" : "object_detection",
+                    "definition" : "cognitive_service"
+                },
+                {
+                    "name" : "issue_detector",
+                    "type" : "object_detection",
+                    "definition" : "cognitive_service"
+                }
+            ]
+        },
+        "User_Interface" :
+        {
+            "type" : "object_detection"
+        }
+    }
+}
