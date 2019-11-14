@@ -1,0 +1,38 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{#APP_NAME#}}
+  labels:
+    app: {{#APP_NAME#}}
+spec:
+  selector:
+    run: {{#APP_NAME#}}
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: PublicIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{#APP_NAME#}}
+spec:
+  replicas: {{#NUM_REPLICAS#}}
+  template:
+    metadata:
+      labels:
+        run: {{#APP_NAME#}}
+        app: {{#APP_NAME#}}
+    spec:
+      containers:
+      - name: {{#APP_NAME#}}
+        image: {{#ACR_NAME#}}.azurecr.io/{{#IMAGE_NAME#}}:#{IMAGE_TAG}#
+        imagePullPolicy: Always
+        env:
+        - name: EVENT_GRID_CNXN
+          value: {{#EVENT_GRID_CNXN#}}
+        ports:
+          - containerPort: 80
+      imagePullSecrets:
+      - name: regsecret

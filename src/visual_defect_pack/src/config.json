@@ -1,6 +1,7 @@
 {
-    "pack_name" : "visual_defect",
-    "industrial_category" : "manufacturing",
+    "name" : "visual_defect",
+    "version" : "0.0.1",
+    "industry" : "manufacturing",
     "deploy_type" : "iot",
     "iot_config" : {
         "device_requirements" : {

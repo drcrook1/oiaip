@@ -2,12 +2,7 @@ Flask
 Flask_RESTful
 Flask_Script
 flask-security
-pyodbc
-flask_socketio
 eventlet
-pandas
-scipy
 azure
-azure-eventhub
-azure-cosmosdb-table
 gunicorn
+kubernetes
