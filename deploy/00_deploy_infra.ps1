@@ -20,7 +20,7 @@ else{
 
 $sp_rbac = az ad sp create-for-rbac -n "dacrookoiaip" --skip-assignment | ConvertFrom-Json
 #sleep to ensure ad credential exists
-Start-Sleep -Seconds 30
+Start-Sleep -Seconds 60
 
 ssh-keygen -t rsa -b 2048 -f ./rsa.txt -N mypassword
 $pub_key = [string](Get-Content ./rsa.txt.pub)
@@ -33,7 +33,7 @@ Write-Host "SP ID: '$app_id_t' SP Secret: '$app_secret_t'"
 
 az role assignment create --assignee $app_id_t --scope /subscriptions/$sub_id/resourceGroups/$resourceGroupName --role Contributor
 #sleep to ensure ad credential changes exist
-Start-Sleep -Seconds 30
+Start-Sleep -Seconds 60
 
 $templateParamObject = New-Object -TypeName Hashtable
 $templateParamObject.Add("baseName", "oiaipdev")

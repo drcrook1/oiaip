@@ -9,6 +9,8 @@ __pycache__/
 # deploy generated secrets
 deploy/rsa.txt
 deploy/rsa.txt.pub
+credentials/
+aks_creds.txt
 
 # Distribution / packaging
 .Python

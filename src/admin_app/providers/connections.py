@@ -16,7 +16,7 @@ def get_kube_client() -> client:
     """
     Returns the kube config
     """
-    config_file = os.environ["KUBE_CONFIG_PATH"]
+    config_file = os.environ["KUBE_CONFIG_FILE_PATH"]
     config.load_kube_config(config_file=config_file)
     kube_client = client.CoreV1Api()
     return kube_client

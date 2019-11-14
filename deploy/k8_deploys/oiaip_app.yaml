@@ -11,14 +11,14 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 80
-  type: PublicIP
+  type: LoadBalancer
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{#APP_NAME#}}
 spec:
-  replicas: {{#NUM_REPLICAS#}}
+  replicas: 3
   template:
     metadata:
       labels:
@@ -27,11 +27,11 @@ spec:
     spec:
       containers:
       - name: {{#APP_NAME#}}
-        image: {{#ACR_NAME#}}.azurecr.io/{{#IMAGE_NAME#}}:#{IMAGE_TAG}#
+        image: {{#ACR_NAME#}}.azurecr.io/{{#APP_NAME#}}
         imagePullPolicy: Always
         env:
-        - name: EVENT_GRID_CNXN
-          value: {{#EVENT_GRID_CNXN#}}
+        - name: KUBE_CONFIG_FILE_PATH
+          value: {{#KUBE_CONFIG_FILE_PATH#}}
         ports:
           - containerPort: 80
       imagePullSecrets:
