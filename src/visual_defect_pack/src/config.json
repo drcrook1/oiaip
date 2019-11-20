@@ -2,7 +2,7 @@
     "name" : "visual_defect",
     "version" : "0.0.1",
     "industry" : "manufacturing",
-    "deploy_type" : "iot",
+    "deploy_type" : "azure",
     "iot_config" : {
         "device_requirements" : {
             "required_tags" : ["camera", "ai_capable"]
@@ -15,6 +15,7 @@
         "path" : "./src/stakeholder_app/"
     },
     "closed_loop" : {
+        "deploy_type" : "iot",
         "transform_root" : "./src/closed_loop/transform",
         "data_capture_root" : "./src/closed_loop/data_capture",
         "prediction" : {
